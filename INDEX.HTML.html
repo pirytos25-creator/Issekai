@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analiza techniczna: propozycja Gemini dla escape roomu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f12;
+    --bg-card: #161a1f;
+    --bg-soft: #1c2128;
+    --text: #e6e1d8;
+    --text-dim: #8a8578;
+    --text-faint: #5a564e;
+    --line: #2a2f37;
+    --line-strong: #3a4048;
+    --green: #6aa84f;
+    --green-soft: #2a3a24;
+    --red: #d94848;
+    --red-soft: #3a2424;
+    --amber: #d4a04a;
+    --amber-soft: #3a2f1e;
+    --blue: #6a9fd4;
+    --blue-soft: #1e2a3a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'IBM Plex Serif', Georgia, serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+    font-size: 16px;
+  }
+
+  /* ========= HEADER ========= */
+  .masthead {
+    border-bottom: 1px solid var(--line);
+    padding: 32px 48px;
+    background: linear-gradient(180deg, #12151a 0%, var(--bg) 100%);
+  }
+  .masthead-inner {
+    max-width: 1180px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 24px;
+    align-items: end;
+  }
+  .masthead-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--amber);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .masthead h1 {
+    font-family: 'IBM Plex Serif', serif;
+    font-size: clamp(30px, 4vw, 46px);
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.8px;
+    color: var(--text);
+  }
+  .masthead h1 em {
+    font-style: italic;
+    color: var(--amber);
+    font-weight: 400;
+  }
+  .masthead-sub {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-align: right;
+  }
+  .masthead-sub div { margin-bottom: 4px; }
+
+  /* ========= CONTAINER ========= */
+  .container {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 48px;
+  }
+
+  /* ========= TL;DR ========= */
+  .tldr {
+    background: var(--bg-card);
+    border: 1px solid var(--line-strong);
+    border-left: 3px solid var(--amber);
+    padding: 32px 36px;
+    margin-bottom: 64px;
+  }
+  .tldr-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--amber);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .tldr h2 {
+    font-family: 'IBM Plex Serif', serif;
+    font-size: 26px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    line-height: 1.2;
+  }
+  .tldr p {
+    color: var(--text);
+    font-size: 17px;
+    margin-bottom: 14px;
+  }
+  .tldr p:last-child { margin-bottom: 0; }
+  .tldr strong { color: var(--amber); font-weight: 600; }
+
+  /* ========= SEKCJE ========= */
+  .section {
+    margin-bottom: 72px;
+  }
+  .section-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--text-faint);
+    letter-spacing: 3px;
+    margin-bottom: 10px;
+  }
+  .section-title {
+    font-family: 'IBM Plex Serif', serif;
+    font-size: 30px;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.5px;
+    margin-bottom: 10px;
+    color: var(--text);
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--line);
+  }
+  .section-subtitle {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin: -8px 0 28px;
+  }
+  .section-intro {
+    font-size: 17px;
+    color: var(--text);
+    max-width: 70ch;
+    margin-bottom: 28px;
+  }
+
+  /* ========= DECISION CARD ========= */
+  .decision {
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .decision-head {
+    display: grid;
+    grid-template-columns: 90px 1fr 140px;
+    gap: 24px;
+    padding: 20px 28px;
+    align-items: center;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-soft);
+  }
+  .decision-id {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+  }
+  .decision-name {
+    font-family: 'IBM Plex Serif', serif;
+    font-size: 19px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .verdict {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-align: center;
+    padding: 8px 10px;
+    text-transform: uppercase;
+    border: 1px solid;
+  }
+  .verdict.keep { color: var(--green); border-color: var(--green); background: var(--green-soft); }
+  .verdict.cut { color: var(--red); border-color: var(--red); background: var(--red-soft); }
+  .verdict.swap { color: var(--amber); border-color: var(--amber); background: var(--amber-soft); }
+  .verdict.rethink { color: var(--blue); border-color: var(--blue); background: var(--blue-soft); }
+
+  .decision-body {
+    padding: 24px 28px;
+  }
+  .decision-body > * + * { margin-top: 14px; }
+  .decision-row {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 20px;
+    padding: 10px 0;
+    font-size: 15px;
+    border-bottom: 1px dashed var(--line);
+  }
+  .decision-row:last-child { border-bottom: none; }
+  .decision-row-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    padding-top: 2px;
+  }
+  .decision-row-label.gemini { color: var(--red); }
+  .decision-row-label.problem { color: var(--amber); }
+  .decision-row-label.zamiana { color: var(--green); }
+  .decision-row-label.koszt { color: var(--blue); }
+  .decision-row-body {
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  .decision-row-body strong { color: var(--amber); }
+  .decision-row-body code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    background: var(--bg);
+    color: var(--amber);
+    padding: 1px 6px;
+    border-radius: 2px;
+  }
+
+  /* ========= STACK SUMMARY ========= */
+  .stack-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 24px;
+    font-size: 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+  }
+  .stack-table th {
+    background: var(--bg-soft);
+    text-align: left;
+    padding: 14px 18px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    border-bottom: 1px solid var(--line-strong);
+    font-weight: 600;
+  }
+  .stack-table td {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  .stack-table td:first-child {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--amber);
+    white-space: nowrap;
+  }
+  .stack-table tr:last-child td { border-bottom: none; }
+  .stack-table .strike {
+    color: var(--text-faint);
+    text-decoration: line-through;
+  }
+
+  /* ========= SMALL TAG ========= */
+  .mini-tag {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    padding: 3px 7px;
+    text-transform: uppercase;
+    margin-right: 5px;
+    border: 1px solid var(--line-strong);
+    color: var(--text-dim);
+  }
+  .mini-tag.red { color: var(--red); border-color: var(--red); }
+  .mini-tag.amber { color: var(--amber); border-color: var(--amber); }
+  .mini-tag.green { color: var(--green); border-color: var(--green); }
+  .mini-tag.blue { color: var(--blue); border-color: var(--blue); }
+
+  /* ========= ALERT BLOCK ========= */
+  .alert {
+    background: var(--red-soft);
+    border: 1px solid var(--red);
+    border-left-width: 3px;
+    padding: 18px 22px;
+    margin: 20px 0;
+    font-size: 15px;
+  }
+  .alert-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2.5px;
+    color: var(--red);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+  .alert.amber {
+    background: var(--amber-soft);
+    border-color: var(--amber);
+  }
+  .alert.amber .alert-label { color: var(--amber); }
+
+  /* ========= LEGEND ========= */
+  .legend {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    padding: 20px 24px;
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    margin-bottom: 40px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .legend-swatch {
+    width: 10px;
+    height: 10px;
+    border: 1px solid;
+  }
+  .legend-swatch.keep { background: var(--green); border-color: var(--green); }
+  .legend-swatch.cut { background: var(--red); border-color: var(--red); }
+  .legend-swatch.swap { background: var(--amber); border-color: var(--amber); }
+  .legend-swatch.rethink { background: var(--blue); border-color: var(--blue); }
+
+  /* ========= FOOTER ========= */
+  .footer {
+    border-top: 1px solid var(--line);
+    padding: 40px 48px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text-faint);
+    text-align: center;
+    letter-spacing: 1.5px;
+    margin-top: 80px;
+  }
+
+  /* ========= RESPONSIVE ========= */
+  @media (max-width: 760px) {
+    .masthead { padding: 24px; }
+    .masthead-inner { grid-template-columns: 1fr; }
+    .masthead-sub { text-align: left; }
+    .container { padding: 24px; }
+    .decision-head {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    .verdict { max-width: 160px; }
+    .decision-row {
+      grid-template-columns: 1fr;
+      gap: 6px;
+    }
+    .decision-body { padding: 18px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ========= MASTHEAD ========= -->
+<header class="masthead">
+  <div class="masthead-inner">
+    <div>
+      <div class="masthead-label">Analiza techniczna · Regresja decyzji</div>
+      <h1>Co Gemini <em>naprawdę</em> zaproponował Ci technicznie — i co z tego trzyma się kupy.</h1>
+    </div>
+    <div class="masthead-sub">
+      <div>Dokument źródłowy: 11 screenów</div>
+      <div>Analiza: decyzja po decyzji</div>
+      <div>Kwiecień 2026 · Roboczo</div>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+<!-- ========= TL;DR ========= -->
+<div class="tldr">
+  <div class="tldr-label">TL;DR · jak czytać ten dokument</div>
+  <h2>Gemini dał Ci stos pomysłów, które brzmią świetnie osobno, ale razem nie złożą się w działający escape room.</h2>
+  <p>Przeanalizowałem <strong>14 konkretnych decyzji technicznych</strong> z rozmowy. Każdą oceniam w jednej z czterech kategorii: <strong>KEEP</strong> (zostawiamy), <strong>CUT</strong> (wyrzucamy — szkodzi projektowi), <strong>SWAP</strong> (zastępujemy prostszą opcją), <strong>RETHINK</strong> (pomysł jest OK, ale potrzebuje innego uzasadnienia).</p>
+  <p>W skrócie: <strong>Unreal Engine, LLM w czasie rzeczywistym, lip-sync AI i system „wykrywania emocji gracza" — wyrzucamy.</strong> To overengineering, który zabije projekt przed startem. <strong>Node-RED, Raspberry Pi, kontaktrony, nagrane TTS, proste JS — zostawiamy.</strong> Reszta wymaga przeprojektowania.</p>
+  <p>Na końcu dokumentu jest finalny stack techniczny — 8 pozycji, wszystkie uzasadnione, wszystkie kompatybilne. To jest to, co faktycznie budujesz.</p>
+</div>
+
+<!-- ========= LEGEND ========= -->
+<div class="legend">
+  <div class="legend-item"><div class="legend-swatch keep"></div>KEEP — sensowna decyzja, zostawiamy</div>
+  <div class="legend-item"><div class="legend-swatch swap"></div>SWAP — zastępujemy prostszą opcją</div>
+  <div class="legend-item"><div class="legend-swatch rethink"></div>RETHINK — pomysł OK, ale wykonanie złe</div>
+  <div class="legend-item"><div class="legend-swatch cut"></div>CUT — wyrzucamy, szkodzi projektowi</div>
+</div>
+
+<!-- ========= CZĘŚĆ 1: ARCHITEKTURA PRODUKCJI ========= -->
+<section class="section">
+  <div class="section-num">CZĘŚĆ I</div>
+  <h2 class="section-title">Architektura produkcji materiałów</h2>
+  <div class="section-subtitle">Jak powstają wideo, grafika i głos NPC</div>
+  <p class="section-intro">Gemini zaproponował tu pipeline „UE5 → materiały → mp4 → przeglądarka". Sprawdzamy każde ogniwo osobno.</p>
+
+  <!-- DECYZJA 1 -->
+  <div class="decision">
+    <div class="decision-head">
+      <div class="decision-id">D.01</div>
+      <div class="decision-name">Unreal Engine 5 jako silnik produkcji materiałów</div>
+      <div class="verdict cut">CUT</div>
+    </div>
+    <div class="decision-body">
+      <div class="decision-row">
+        <div class="decision-row-label gemini">CO PROPONOWAŁ</div>
+        <div class="decision-row-body">UE5 do fotorealistycznego renderingu modeli „Świata Toruńskiego". Darmowy dla indie. Renderujemy w UE5, eksportujemy do .mp4, potem odtwarzamy w przeglądarce.</div>
+      </div>
+      <div class="decision-row">
+        <div class="decision-row-label problem">PROBLEM</div>
+        <div class="decision-row-body">UE5 to silnik gry 3D do tworzenia aplikacji czasu rzeczywistego. Używanie go tylko do renderu wideo to jak kupowanie Excel-a, żeby zrobić jedną fakturę raz w roku. Żeby wyrenderować coś sensownego w UE5, potrzebujesz: modeli 3D (kupno lub stworzenie w Blenderze), tekstur, oświetlenia, animacji postaci, kamer, sound design. To miesiące pracy dla jednej osoby. Samo opanowanie UE5 to <strong>150–300 godzin nauki</strong>, zanim cokolwiek sensownego zrenderujesz.</div>
+      </div>
+      <div class="decision-row">
+        <div class="decision-row-label zamiana">ZAMIANA</div>
+        <div class="decision-row-body">Do materiałów wideo w escape roomie nie potrzebujesz fotorealizmu 3D. Potrzebujesz: (a) krótkich klipów intro/outro, (b) ambient wideo w tle, (c) ewentualnie animacji NPC. To wszystko robi się tanio narzędziami AI wideo (Runway, Kling, Hailuo, Sora). <strong>Koszt: 100–200 PLN/mies., efekt porównywalny, czas produkcji 10× krótszy.</strong></div>
+      </div>
+      <div class="decision-row">
+        <div class="decision-row-label koszt">KOSZT ALTERNATYWY</div>
+        <div class="decision-row-body">Runway/Kling subskrypcja: <code>~150 PLN/mies.</code>. Do tego Midjourney lub Flux: <code>~80 PLN/mies.</code> Razem mniej niż 250 PLN/mies. w fazie produkcji, zero po niej.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DECYZJA 2 -->
+  <div class="decision">
+    <div class="decision-head">
+      <div class="decision-id">D.02</div>
+      <div class="decision-name">Generatory wideo AI (Runway / Kling / Sora)</div>
+      <div class="verdict keep">KEEP</div>
+    </div>
+    <div class="decision-body">
+      <div class="decision-row">
+        <div class="decision-row-label gemini">CO PROPONOWAŁ</div>
+        <div class="decision-row-body">RunwayML do generowania klipów wideo (intro, outro, animacje).</div>
+      </div>
+      <div class="decision-row">
+        <div class="decision-row-label problem">NIUANS</div>
+        <div class="decision-row-body">Runway był liderem 2 lata temu, dziś scena wygląda inaczej. W 2026 lepsze opcje to <strong>Kling 2.0</strong> (Chińczycy, dobra jakość, tania), <strong>Hailuo</strong>, <strong>Sora</strong> (OpenAI, jeśli masz dostęp przez ChatGPT Plus). Runway wciąż działa, ale zweryfikuj ceny i jakość przed wyborem — rynek zmienia się co 3 miesiące.</div>
+      </div>
+      <div class="decision-row">
+        <div class="decision-row-label zamiana">UWAGA PRAKTYCZNA</div>
+        <div class="decision-row-body">Generatory wideo produkują 5–10-sekundowe klipy. Do 90-sekundowego intro musisz je skleić w DaVinci Resolve (darmowy) lub CapCut. Planuj na to czas — to samo w sobie 2–3 dni produkcji per scena.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DECYZJA 3 -->
+  <div class="decision">
+    <div class="decision-head">
+      <div class="decision-id">D.03</div>
+      <div class="decision-name">ElevenLabs do głosu NPC</div>
+      <div class="verdict keep">KEEP</div>
+    </div>
+    <div class="decision-body">
+      <div class="decision-row">
+        <div class="decision-row-label gemini">CO PROPONOWAŁ</div>
+        <div class="decision-row-body">ElevenLabs lub Unreal Speech do generowania głosu Czarownika.</div>
+      </div>
+      <div class="decision-row">
+        <div class="decision-row-label problem">KOMENTARZ</div>
+        <div class="decision-row-body">Jedyna decyzja Gemini, która jest jednoznacznie trafna. ElevenLabs ma najlepszą jakość polskiego TTS w 2026 r., klonowanie głosu z 3-minutowej próbki daje przekonujący efekt. Plan Creator (~95 PLN/mies.) spokojnie wystarczy do escape roomu.</div>
+      </div>
+      <div class="decision-row">
+        <div class="decision-row-label zamiana">ALE UWAGA</div>
+        <div class="decision-row-body">Generujesz głos <strong>RAZ, offline</strong>, nagrywasz ~40 kwestii do plików mp3, i potem odtwarzasz je przez Node-RED. NIE generujesz w czasie rzeczywistym (patrz decyzja D.07).</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DECYZJA 4 -->
+  <div class="decision">
+    <div class="decision-head">
+      <div class="decision-id">D.04</div>
+      <div class="decision-name">Lip-sync AI (SadTalker / Wav2Lip / UE5)</div>
+      <div class="verdict cut">CUT</div>
+    </div>
+    <div class="decision-body">
+      <div class="decision-row">
+        <div class="decision-row-label gemini">CO PROPONOWAŁ</div>
+        <div class="decision-row-body">Ruch ust postaci Czarownika synchronizowany do wygenerowanego audio — narzędzia typu SadTalker, Wav2Lip, lub Unreal Engine.</div>
+      </div>
+      <div class="decision-row">
+        <div class="decision-row-label problem">PROBLEM</div>
+        <div class="decision-row-body">Trzy poziomy problemu: (1) <strong>uncanny valley</strong> — animowane twarze AI w 2026 dalej wyglądają dziwnie, szczególnie na dużym ekranie; (2) <strong>koszt produkcji</strong> — SadTalker daje kiepską jakość, lepsze narzędzia (HeyGen, Synthesia) kosztują ~300 PLN/mies.; (3) <strong>to jest zupełnie niepotrzebne</strong> — w escape roomie gracze NIE oglądają NPC przez 60 minut, tylko słyszą głos. Widoczna twarz niszczy klimat, bo przestaje być tajemnicza.</div>
+      </div>
+      <div class="decision-row">
+        <div class="decision-row-label zamiana">ZAMIANA</div>
+        <div class="decision-row-body">Czarownik/Mistrz Czasu to <strong>głos bez ciała</strong>, ewentualnie <strong>sylwetka za zasłoną</strong> lub <strong>tylko oczy w ciemności</strong> (projekcja z projektora mini). Znacznie mocniejszy efekt dramaturgiczny. Budżet: 0 PLN + tkanina + projektor, który i tak masz.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========= CZĘŚĆ 2: LOGIKA GRY W CZASIE RZECZYWISTYM ========= -->
+<section class="section">
+  <div class="section-num">CZĘŚĆ II</div>
+  <h2 class="section-title">Logika gry w czasie rzeczywistym</h2>
+  <div class="section-subtitle">Co dzieje się, gdy gracze są w pokoju</div>
+  <p class="section-intro">Tu Gemini wymieszał „HTML/JS jako silnik", „blog jako interfejs" i „LLM na żywo dla NPC". Trzy różne poziomy decyzji, które trzeba rozdzielić.</p>
+
+  <!-- DECYZJA 5 -->
+  <div class="decision">
+    <div class="decision-head">
+      <div class="decision-id">D.05</div>
+      <div class="decision-name">HTML/JavaScript jako „silnik gry" w przeglądarce</div>
+      <div class="verdict rethink">RETHINK</div>
+    </div>
+    <div class="decision-body">
+      <div class="decision-row">
+        <div class="decision-row-label gemini">CO PROPONOWAŁ</div>
+        <div class="decision-row-body">Aplikacja webowa w HTML/JS działająca offline w przeglądarce na laptopie. Nazywa to „silnikiem gry".</div>
+      </div>
+      <div class="decision-row">
+        <div class="decision-row-label problem">PROBLEM</div>
+        <div class="decision-row-body">Nazywanie HTML/JS „silnikiem gry" to nadużycie językowe Gemini. W escape roomie nie ma „gry" w sensie komputerowym — jest <strong>pokój z fizycznymi elementami + kilka ekranów, które pokazują wideo i reagują na zdarzenia</strong>. Nie potrzebujesz silnika. Potrzebujesz odtwarzacza wideo i kilku przełączników.</div>
+      </div>
+      <div class="decision-row">
+        <div class="decision-row-label zamiana">ZAMIANA</div>
+        <div class="decision-row-body">Użyj <strong>OBS Studio</strong> (darmowy) + proste sceny + sterowanie przez websocket/HTTP z Node-RED. Albo jeszcze prościej: VLC w trybie pilota sieciowego. HTML/JS używaj tylko jeśli naprawdę potrzebujesz interaktywnego UI na ekranie (np. mini-zagadka z klikalnymi elementami). 90% ekranów w escape roomie to po prostu odtwarzacz wideo.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DECYZJA 6 -->
+  <div class="decision">
+    <div class="decision-head">
+      <div class="decision-id">D.06</div>
+      <div class="decision-name">„Blog jako interfejs gry" (struktura scen)</div>
+      <div class="verdict rethink">RETHINK</div>
+    </div>
+    <div class="decision-body">
+      <div class="decision-row">
+        <div class="decision-row-label gemini">CO PROPONOWAŁ</div>
+        <div class="decision-row-body">Każda scena to „blog" — strona HTML z <code>video_intro</code>, <code>video_outro</code>, <code>sin_context</code>, <code>sin_hall</code>. Słowa w struktury brzmią jak błędnie przetłumaczone z angielskiego (<code>sin_context</code> to prawdopodobnie <code>scene_context</code>).</div>
+      </div>
+      <div class="decision-row">
+        <div class="decision-row-label problem">PROBLEM</div>
+        <div class="decision-row-body">Koncept modularnych scen z intro/outro jest <strong>sensowny</strong>, ale nazywanie tego „blogiem" gubi intencję. Blog to format treści publikowanej w internecie, nie strukturalny element gry. I te nazwy pól (<code>sin_context</code>) są bełkotem — Gemini albo źle przetłumaczył, albo zmyślił.</div>
+      </div>
+      <div class="decision-row">
+        <div class="decision-row-label zamiana">ZAMIANA</div>
+        <div class="decision-row-body">Struktura jest OK, ale nazwij to poprawnie. Każdy akt/zagadka = obiekt JSON w Node-RED:
+          <pre style="margin-top: 10px; background: var(--bg); padding: 14px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--amber); overflow-x: auto; border-left: 2px solid var(--amber);">{
+  "act_id": "kopernik",
+  "intro_video": "intro_kopernik.mp4",
+  "success_video": "success_kopernik.mp4",
+  "fail_video": "fail_kopernik.mp4",
+  "solution": "heliocentrum",
+  "sensors": ["planet_merkury", "planet_venus", ...],
+  "next_act": "final"
+}</pre></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DECYZJA 7 -->
+  <div class="decision">
+    <div class="decision-head">
+      <div class="decision-id">D.07</div>
+      <div class="decision-name">LLM + RAG do odpowiedzi NPC w czasie rzeczywistym</div>
+      <div class="verdict cut">CUT</div>
+    </div>
+    <div class="decision-body">
+      <div class="decision-row">
+        <div class="decision-row-label gemini">CO PROPONOWAŁ</div>
+        <div class="decision-row-body">LLM (Gemini lub GPT) przez API + system RAG zasilony historyczną bazą Torunia. Gracze pytają — model odpowiada w czasie rzeczywistym jako Czarownik.</div>
+      </div>
+      <div class="decision-row">
+        <div class="decision-row-label problem">PROBLEM</div>
+        <div class="decision-row-body">Pięć osobnych problemów, każdy wystarczy, żeby tego nie robić:
+          <ol style="margin-top: 12px; padding-left: 22px;">
+            <li><strong>Latencja.</strong> API → LLM → TTS → wygenerowanie audio → odtworzenie = 4–8 sekund ciszy. W escape roomie 4 sekundy ciszy to wieczność. Gracze tracą flow.</li>
+            <li><strong>Halucynacje historyczne.</strong> LLM powie „Kopernik urodził się w Krakowie" albo „Zakon Krzyżacki założył Gdańsk" — w escape roomie <em>historycznym</em> to dyskwalifikuje produkt.</li>
+            <li><strong>Wymaga internetu.</strong> Escape room powinien działać offline. Jedno padniecie neta = 0 gier w weekendu.</li>
+            <li><strong>Koszt.</strong> ~40 gier tygodniowo × 10 pytań × token cost = 200–400 PLN/mies., bez wartości dodanej.</li>
+            <li><strong>Niepotrzebne.</strong> Gracze w escape roomie NIE prowadzą konwersacji z NPC. Mają zagadki do rozwiązania. 40 nagranych wcześniej kwestii wystarczy na 99% sytuacji.</li>
+          </ol>
+        </div>
+      </div>
+      <div class="decision-row">
+        <div class="decision-row-label zamiana">ZAMIANA</div>
+        <div class="decision-row-body">Zamiast LLM w czasie rzeczywistym: <strong>nagrane TTS w ElevenLabs</strong> + <strong>drzewo decyzyjne w Node-RED</strong>, które wybiera odpowiedni plik na podstawie sytuacji. Game master w pokoju kontrolnym ma 40 przycisków na tablecie — w skrajnych wypadkach może kliknąć „custom podpowiedź" i dodać zdanie głosem przez voicechanger. 95% wypadków obsługuje automat, 5% GM.</div>
+      </div>
+      <div class="decision-row">
+        <div class="decision-row-label koszt">KOSZT W PROBLEMACH</div>
+        <div class="decision-row-body">Odkręcenie LLM po wdrożeniu = przepisanie całego systemu głosu NPC. Koszt błędu: ~2 tygodnie pracy, jeśli wejdzie do MVP.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DECYZJA 8 -->
+  <div class="decision">
+    <div class="decision-head">
+      <div class="decision-id">D.08</div>
+      <div class="decision-name">System „wykrywania emocji gracza" (frustracja / znudzenie)</div>
+      <div class="verdict cut">CUT</div>
+    </div>
+    <div class="decision-body">
+      <div class="decision-row">
+        <div class="decision-row-label gemini">CO PROPONOWAŁ</div>
+        <div class="decision-row-body">„Gra musi automatycznie rozpoznawać stan emocjonalny gracza". Metryki: czas na zagadce, jakość odpowiedzi, aktywność ruchu.</div>
+      </div>
+      <div class="decision-row">
+        <div class="decision-row-label problem">PROBLEM</div>
+        <div class="decision-row-body">To jest research-level AI, nie funkcja w escape roomie. „Wykrywanie emocji" z zachowania gracza wymaga komputerowego widzenia (kamery + model), wytrenowanego modelu na konkretną grupę, i i tak ma ~60% trafności. Gemini tu po prostu zmyślił, że to jest proste, bo brzmi „AI-owo". <strong>Nie ma czegoś takiego w żadnym escape roomie na świecie.</strong></div>
+      </div>
+      <div class="decision-row">
+        <div class="decision-row-label zamiana">ZAMIANA</div>
+        <div class="decision-row-body">To już działa od lat — nazywa się <strong>game master</strong>. Operator siedzi w pokoju kontrolnym, widzi graczy na 2 kamerach, ocenia ich stan <em>własnymi oczami</em> (100% trafność) i ręcznie uruchamia podpowiedzi. Prosta prawda branżowa: każdy komercyjny escape room tak działa.</div>
+      </div>
+      <div class="decision-row">
+        <div class="decision-row-label koszt">CO ZROBIĆ AUTOMATYCZNIE</div>
+        <div class="decision-row-body">Automatyzacji wymaga tylko <strong>prosty timer inercji</strong>: jeśli żaden czujnik nie zmienił stanu przez 3 minuty — zapalić lampkę na panelu GM. GM decyduje, co z tym zrobić. Kod: ~10 linii w Node-RED.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========= CZĘŚĆ 3: SPRZĘT ========= -->
+<section class="section">
+  <div class="section-num">CZĘŚĆ III</div>
+  <h2 class="section-title">Sprzęt i fizyczna integracja</h2>
+  <div class="section-subtitle">Raspberry Pi, kontaktrony, Node-RED, interfejsy</div>
+  <p class="section-intro">Tu Gemini ma sporo trafnych intuicji (Pi, kontaktrony, Node-RED), ale psuje to nierealnymi opisami „modyfikowanych klawiatur".</p>
+
+  <!-- DECYZJA 9 -->
+  <div class="decision">
+    <div class="decision-head">
+      <div class="decision-id">D.09</div>
+      <div class="decision-name">Raspberry Pi jako centrum sterowania</div>
+      <div class="verdict keep">KEEP</div>
+    </div>
+    <div class="decision-body">
+      <div class="decision-row">
+        <div class="decision-row-label gemini">CO PROPONOWAŁ</div>
+        <div class="decision-row-body">Raspberry Pi jako lokalny serwer gry i centrum IoT. Node-RED na Pi obsługuje czujniki.</div>
+      </div>
+      <div class="decision-row">
+        <div class="decision-row-label problem">DOPRECYZOWANIE</div>
+        <div class="decision-row-body">Trafna decyzja, ale Gemini nie doprecyzował kluczowej rzeczy: <strong>Pi nie jest dla escape roomu wystarczająco mocne do odtwarzania HD wideo na kilku ekranach jednocześnie</strong>. Pi 5 tak, Pi 4 tylko na granicy. Do wielu ekranów = osobne urządzenia.</div>
+      </div>
+      <div class="decision-row">
+        <div class="decision-row-label zamiana">DOPRECYZOWANY STACK</div>
+        <div class="decision-row-body">
+          <strong>Pi 5 (8 GB)</strong> jako broker MQTT + Node-RED + panel GM = centrum logiki.<br>
+          <strong>Stary laptop</strong> (może być 8-letni) jako odtwarzacz wideo głównego ekranu.<br>
+          <strong>ESP32</strong> (po 20 PLN) w każdej strefie — zbiera sygnały z czujników i wysyła po Wi-Fi przez MQTT do Pi.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DECYZJA 10 -->
+  <div class="decision">
+    <div class="decision-head">
+      <div class="decision-id">D.10</div>
+      <div class="decision-name">Node-RED do logiki przepływów</div>
+      <div class="verdict keep">KEEP</div>
+    </div>
+    <div class="decision-body">
+      <div class="decision-row">
+        <div class="decision-row-label gemini">CO PROPONOWAŁ</div>
+        <div class="decision-row-body">Node-RED jako wizualne programowanie flow dla IoT, zamiast kodu.</div>
+      </div>
+      <div class="decision-row">
+        <div class="decision-row-label problem">KOMENTARZ</div>
+        <div class="decision-row-body">Dobra decyzja z odpowiednich powodów. Node-RED jest szczególnie silny dla escape roomów, bo: (a) łatwo debugować na żywo, (b) dashboard dla GM w 5 minut, (c) nie wymaga wiedzy o programowaniu, (d) ma gotowe nody do MQTT, HTTP, audio, GPIO. <strong>Branża escape roomów używa tego masowo.</strong></div>
+      </div>
+      <div class="decision-row">
+        <div class="decision-row-label zamiana">UWAGA</div>
+        <div class="decision-row-body">Node-RED to narzędzie do <em>logiki przepływów</em>, nie do odtwarzania wideo. Do wideo użyj osobnego komputera z VLC/OBS i sterowania przez HTTP/websocket z Node-RED. Nie mieszaj.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DECYZJA 11 -->
+  <div class="decision">
+    <div class="decision-head">
+      <div class="decision-id">D.11</div>
+      <div class="decision-name">Kontaktrony magnetyczne jako „przyciski fabularne"</div>
+      <div class="verdict keep">KEEP</div>
+    </div>
+    <div class="decision-body">
+      <div class="decision-row">
+        <div class="decision-row-label gemini">CO PROPONOWAŁ</div>
+        <div class="decision-row-body">Czujniki magnetyczne (kontaktrony) jako „prymitywne przyciski". Gracz przykłada magnes/artefakt, czujnik reaguje, sygnał idzie do Pi.</div>
+      </div>
+      <div class="decision-row">
+        <div class="decision-row-label problem">KOMENTARZ</div>
+        <div class="decision-row-body">To jest <strong>klasyk branżowy</strong> — każdy escape room tak robi. Po 3 PLN za sztukę, niezawodne, nie widać elektroniki. Gracz „aktywuje artefakt" — w rzeczywistości dotyka magnesem styku. Klasa.</div>
+      </div>
+      <div class="decision-row">
+        <div class="decision-row-label zamiana">DOPRECYZOWANIE</div>
+        <div class="decision-row-body">Oprócz kontaktronów warto znać też: <strong>RFID NFC</strong> (reader ~50 PLN, czyta identyfikator; idealne do „wkładasz kartę do czytnika"), <strong>fototranzystory</strong> (wykrywają zasłonięcie światła), <strong>czujniki tilt</strong> (gracz obraca coś). Każde z nich daje inną metaforę fizyczną. Miksuj — 3 różne typy czujników w 3 aktach dają wrażenie różnorodności.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DECYZJA 12 -->
+  <div class="decision">
+    <div class="decision-head">
+      <div class="decision-id">D.12</div>
+      <div class="decision-name">„Modyfikowane klawiatury" jako interfejs wejścia</div>
+      <div class="verdict cut">CUT</div>
+    </div>
+    <div class="decision-body">
+      <div class="decision-row">
+        <div class="decision-row-label gemini">CO PROPONOWAŁ</div>
+        <div class="decision-row-body">Klawiatury „wklejone w blat", stylizowane na „Arcade" lub „Fantasy", z klawiszami w kształcie run/pieczęci, skanujące naciśnięcia. Dosłowny cytat z screena: <em>„Naklejona od razu klawiatura mechaniczna na blat z klawiszami 3D fizycznymi blokającymi klawiaturę"</em>.</div>
+      </div>
+      <div class="decision-row">
+        <div class="decision-row-label problem">PROBLEM</div>
+        <div class="decision-row-body">Ten opis to słowna mgła — Gemini wyprodukował zdania, które <em>brzmią</em> jakby opisywały coś konkretnego, ale nic z tego nie stoi technicznie. „Klawiatura z klawiszami 3D blokującymi klawiaturę" nic nie znaczy. <strong>Wpisywanie haseł na klawiaturze w ogóle nie powinno być w escape roomie.</strong> Klawiatura łamie immersję — jesteś w średniowiecznym Toruniu, dotykasz plastikowej klawiatury.</div>
+      </div>
+      <div class="decision-row">
+        <div class="decision-row-label zamiana">ZAMIANA</div>
+        <div class="decision-row-body">Żaden input tekstowy. Zamiast tego: <strong>fizyczne układanki</strong> (ułożyć 6 planet na planetarium), <strong>zamki mechaniczne z kombinacją</strong> (3 pokrętła z cyframi → sejf), <strong>dotknięcie artefaktu do artefaktu</strong> (pieczęć na dokument), <strong>przekręcenie klucza</strong>. Jeśli naprawdę potrzeba tekstu — to ukryty w rekwizycie (np. zamek literowy jak w walizce podróżnej).</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DECYZJA 13 -->
+  <div class="decision">
+    <div class="decision-head">
+      <div class="decision-id">D.13</div>
+      <div class="decision-name">Tablet jako „Magiczna Księga"</div>
+      <div class="verdict swap">SWAP</div>
+    </div>
+    <div class="decision-body">
+      <div class="decision-row">
+        <div class="decision-row-label gemini">CO PROPONOWAŁ</div>
+        <div class="decision-row-body">Tablet jako „magiczna księga" z zainstalowaną aplikacją, którą gracze biegają po sali.</div>
+      </div>
+      <div class="decision-row">
+        <div class="decision-row-label problem">PROBLEM</div>
+        <div class="decision-row-body">Dwa problemy: (1) <strong>tablet psuje klimat</strong> — widać, że to tablet, nawet w drewnianej obudowie. Gracze zauważają ikonę home na dole. (2) <strong>BYOD complication</strong> — gracze dotykają tableta, upuszczają, zostawiają odciski. Ekran brudzi się w tydzień.</div>
+      </div>
+      <div class="decision-row">
+        <div class="decision-row-label zamiana">ZAMIANA</div>
+        <div class="decision-row-body">Zamiast tabletu jako głównego interfejsu: <strong>fizyczny artefakt + projekcja</strong>. Np. księga z pustymi stronami — gdy gracz ją otworzy w określonym miejscu, czujnik wywoła projekcję tekstu na sufit/ścianę. Efekt 10× mocniejszy, tablet tylko dla GM w pokoju kontrolnym.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DECYZJA 14 -->
+  <div class="decision">
+    <div class="decision-head">
+      <div class="decision-id">D.14</div>
+      <div class="decision-name">Telewizor 50–65" jako „Magiczny Ołtarz"</div>
+      <div class="verdict swap">SWAP</div>
+    </div>
+    <div class="decision-body">
+      <div class="decision-row">
+        <div class="decision-row-label gemini">CO PROPONOWAŁ</div>
+        <div class="decision-row-body">Duży TV (50–65 cali) zabudowany w „ołtarz/artefakt", stanowiący centralny punkt komunikacji.</div>
+      </div>
+      <div class="decision-row">
+        <div class="decision-row-label problem">PROBLEM</div>
+        <div class="decision-row-body">Centralny TV jako punkt gry to anti-patern w escape roomach. Gracze gromadzą się przed ekranem i gapią na niego zamiast eksplorować pokój. Tracisz immersję i fizyczność.</div>
+      </div>
+      <div class="decision-row">
+        <div class="decision-row-label zamiana">ZAMIANA</div>
+        <div class="decision-row-body">Rozbij „jeden duży ekran" na <strong>kilka małych zabudowanych ekranów</strong> w różnych miejscach: okno wieży (LCD 32" z ramą), „lustro czasu" (pionowy LCD 27" za szkłem mgiełkowym), projekcja na sufit obserwatorium (projektor). Każdy ekran aktywny tylko w swojej strefie. Zmusza graczy do poruszania się, każde „odkrycie" jest zdarzeniem.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========= PATTERN ZAUWAŻONY ========= -->
+<section class="section">
+  <div class="section-num">DIAGNOZA</div>
+  <h2 class="section-title">Co zauważyłem w stylu Gemini</h2>
+  <div class="section-subtitle">Pattern, który warto znać na przyszłość</div>
+
+  <div class="alert amber">
+    <div class="alert-label">Pattern #1 · Tryb entuzjastycznego brainstorma</div>
+    Gemini w tej rozmowie przyjmował każdy pomysł i dorzucał kolejne, nie kwestionując poprzednich. Efekt: stos pomysłów, które sprzecznie działają razem (LLM w czasie rzeczywistym + działanie offline to sprzeczność). Na przyszłość warto poprosić: <em>„Wyceń mi każdą decyzję — co kosztuje ile, co daje ile? Zaznacz, co byś wyrzucił."</em>
+  </div>
+
+  <div class="alert amber">
+    <div class="alert-label">Pattern #2 · Mieszanie poziomów abstrakcji</div>
+    W jednym ciągu zdań: „UE5 do renderingu" (poziom infrastruktury), „modyfikowane klawiatury" (poziom interfejsu), „LLM odpowiada graczom" (poziom gameplay'u), „Raspberry Pi steruje wszystkim" (poziom orkiestracji). To są 4 różne warstwy projektu — powinny być rozdzielone, bo każda ma inne kryteria decyzyjne.
+  </div>
+
+  <div class="alert amber">
+    <div class="alert-label">Pattern #3 · Termin-brzmi-technicznie ergo „to działa"</div>
+    „Schematyczny RPG", „Dialogue Node", „blog-mapuje", „sin_context", „Warstwa Tła (Widland)" — Gemini używał terminów, które brzmią jak żargon branżowy, ale są albo zmyślone, albo źle przetłumaczone z angielskiego. Następnym razem — przy każdym nowym terminie proś: <em>„Zdefiniuj to precyzyjnie i podaj źródło, gdzie ta nazwa jest używana w branży."</em>
+  </div>
+
+  <div class="alert amber">
+    <div class="alert-label">Pattern #4 · Overengineering = „robi wrażenie"</div>
+    „Wykrywanie emocji gracza", „LLM generuje dialogi", „lip-sync w Unreal Engine" — te pomysły nie dodają wartości dla gracza, ale <em>brzmią</em> nowocześnie i technicznie. Dla osoby bez doświadczenia technicznego sprawiają wrażenie „wow, profesjonalnie". Dla inżyniera — to czerwone flagi oznaczające, że projekt zginie w fazie implementacji.
+  </div>
+</section>
+
+<!-- ========= FINALNY STACK ========= -->
+<section class="section">
+  <div class="section-num">KONKLUZJA</div>
+  <h2 class="section-title">Finalny stack techniczny — to, co faktycznie budujesz</h2>
+  <div class="section-subtitle">8 decyzji, wszystkie kompatybilne</div>
+  <p class="section-intro">Po odfiltrowaniu problemów zostaje prosty, realistyczny stack, który działa offline, jest tani w utrzymaniu i nie wymaga wiedzy o ML ani UE5.</p>
+
+  <table class="stack-table">
+    <thead>
+      <tr>
+        <th style="width: 22%;">Warstwa</th>
+        <th style="width: 30%;">Technologia</th>
+        <th>Rola w escape roomie</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Orkiestracja</td>
+        <td>Raspberry Pi 5 (8 GB) + Node-RED</td>
+        <td>Centrum logiki. Czyta sygnały z czujników, wyzwala akcje (audio, drzwi, światła), komunikuje się z panelem GM.</td>
+      </tr>
+      <tr>
+        <td>Komunikacja</td>
+        <td>MQTT (Mosquitto na Pi)</td>
+        <td>Protokół pub/sub dla wszystkich urządzeń. Każdy czujnik publikuje stan na swój topic, Node-RED subskrybuje.</td>
+      </tr>
+      <tr>
+        <td>Czujniki</td>
+        <td>ESP32 + kontaktrony + RFID + fototranzystory</td>
+        <td>Fizyczne „przyciski" ukryte w rekwizytach. Każdy ESP32 obsługuje lokalnie kilka czujników, wysyła przez Wi-Fi.</td>
+      </tr>
+      <tr>
+        <td>Aktuatory</td>
+        <td>Przekaźniki + maglocki + serwomotory + LED DMX</td>
+        <td>Otwieranie drzwi między strefami, ruch planetarium, sterowanie światłem.</td>
+      </tr>
+      <tr>
+        <td>Odtwarzanie wideo</td>
+        <td>Stary laptop + VLC/OBS sterowane HTTP</td>
+        <td>Główne ekrany (okno wieży, projekcja obserwatorium) odtwarzają pliki mp4 na sygnał z Node-RED.</td>
+      </tr>
+      <tr>
+        <td>Audio</td>
+        <td>Głośniki strefowe × 4 + wzmacniacz + nagrane mp3</td>
+        <td>Ambient per strefa, kwestie NPC odtwarzane przez Node-RED audio node.</td>
+      </tr>
+      <tr>
+        <td>Produkcja materiałów</td>
+        <td>Runway/Kling (wideo) + Midjourney (grafika) + ElevenLabs (głos)</td>
+        <td>Wszystko generowane JEDNORAZOWO offline, eksportowane do plików, potem tylko odtwarzane.</td>
+      </tr>
+      <tr>
+        <td>Panel GM</td>
+        <td>Tablet 10" z dashboardem Node-RED</td>
+        <td>Game master widzi stan wszystkich czujników, ręcznie uruchamia podpowiedzi, resetuje pokój.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="alert" style="margin-top: 32px; background: var(--green-soft); border-color: var(--green);">
+    <div class="alert-label" style="color: var(--green);">CO ZOSTAŁO WYRZUCONE Z DOKUMENTU GEMINI</div>
+    <table class="stack-table" style="margin-top: 10px; background: transparent; border: none;">
+      <tr><td class="strike" style="color: var(--text-faint);">Unreal Engine 5</td><td>Zamiast renderu 3D — generatory wideo AI.</td></tr>
+      <tr><td class="strike" style="color: var(--text-faint);">LLM + RAG w czasie rzeczywistym</td><td>Zamiast tego — 40 nagranych kwestii + drzewo decyzyjne.</td></tr>
+      <tr><td class="strike" style="color: var(--text-faint);">Lip-sync AI (SadTalker/Wav2Lip)</td><td>Zamiast tego — głos bez ciała lub sylwetka za zasłoną.</td></tr>
+      <tr><td class="strike" style="color: var(--text-faint);">Wykrywanie emocji gracza</td><td>Zamiast tego — game master z tabletem.</td></tr>
+      <tr><td class="strike" style="color: var(--text-faint);">Modyfikowane klawiatury</td><td>Zamiast tego — fizyczne układanki i zamki.</td></tr>
+      <tr><td class="strike" style="color: var(--text-faint);">HTML/JS jako „silnik"</td><td>Zamiast tego — VLC/OBS do wideo, HTML tylko jeśli naprawdę trzeba UI.</td></tr>
+    </table>
+  </div>
+
+  <div class="alert" style="margin-top: 24px;">
+    <div class="alert-label">KOSZT STACKA (SPRZĘT, BEZ PRODUKCJI)</div>
+    Raspberry Pi 5 (~600) + 3× ESP32 (~60) + czujniki różne (~200) + 4× maglocki (~400) + 2 projektory (~2500) + LCD 32" (~800) + audio (~1500) + stary laptop (~0, z domu) + tablet GM (~600) = <strong>~6 700 PLN</strong>. Materiały AI to osobny budżet operacyjny ~250 PLN/mies. w fazie produkcji.
+  </div>
+</section>
+
+</div>
+
+<!-- ========= FOOTER ========= -->
+<footer class="footer">
+  <div>ANALIZA TECHNICZNA · ESCAPE ROOM · KWIECIEŃ 2026</div>
+  <div style="margin-top: 8px; opacity: 0.7;">Dokument roboczy · do dalszej iteracji</div>
+</footer>
+
+</body>
+</html>
