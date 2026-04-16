@@ -1,0 +1,2 @@
+# Issekai
+Kurwa
